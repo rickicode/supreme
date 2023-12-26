@@ -107,6 +107,7 @@ echo -e "[ ${green}INFO${NC} ] Preparing the install file"
 apt install git curl -y >/dev/null 2>&1
 apt install python2 -y >/dev/null 2>&1
 apt install python -y >/dev/null 2>&1
+apt-get -y install lsof >/dev/null 2>&1
 echo -e "[ ${green}INFO${NC} ] Aight good ... installation file is ready"
 sleep 0.5
 echo -ne "[ ${green}INFO${NC} ] Check permission : "
