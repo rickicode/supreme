@@ -5,12 +5,12 @@ date
 echo ""
 domain=$(cat /root/domain)
 sleep 0.5
-mkdir -p /etc/xray 
+mkdir -p /etc/xray
 echo -e "[ ${green}INFO${NC} ] Checking... "
 apt install iptables iptables-persistent -y
 sleep 0.5
 echo -e "[ ${green}INFO$NC ] Setting ntpdate"
-ntpdate pool.ntp.org 
+ntpdate pool.ntp.org
 timedatectl set-ntp true
 sleep 0.5
 echo -e "[ ${green}INFO$NC ] Enable chronyd"
@@ -27,18 +27,18 @@ chronyc sourcestats -v
 chronyc tracking -v
 echo -e "[ ${green}INFO$NC ] Setting dll"
 apt clean all && apt update
-apt install curl socat xz-utils wget apt-transport-https gnupg gnupg2 gnupg1 dnsutils lsb-release -y 
+apt install curl socat xz-utils wget apt-transport-https gnupg gnupg2 gnupg1 dnsutils lsb-release -y
 apt install socat cron bash-completion ntpdate -y
 ntpdate pool.ntp.org
 apt -y install chrony
 apt install zip -y
 apt install curl pwgen openssl netcat cron -y
 
-
 # install xray
 sleep 0.5
 echo -e "[ ${green}INFO$NC ] Downloading & Installing xray core"
-domainSock_dir="/run/xray";! [ -d $domainSock_dir ] && mkdir  $domainSock_dir
+domainSock_dir="/run/xray"
+! [ -d $domainSock_dir ] && mkdir $domainSock_dir
 chown www-data.www-data $domainSock_dir
 # Make Folder XRay
 mkdir -p /var/log/xray
@@ -59,8 +59,8 @@ curl https://acme-install.netlify.app/acme.sh -o /root/.acme.sh/acme.sh
 chmod +x /root/.acme.sh/acme.sh
 /root/.acme.sh/acme.sh --upgrade --auto-upgrade
 /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-/root/.acme.sh/acme.sh --issue -d $domain --standalone 
-~/.acme.sh/acme.sh --installcert -d $domain --fullchainpath /etc/xray/xray.crt --keypath /etc/xray/xray.key 
+/root/.acme.sh/acme.sh --issue -d $domain --standalone
+~/.acme.sh/acme.sh --installcert -d $domain --fullchainpath /etc/xray/xray.crt --keypath /etc/xray/xray.key
 
 # nginx renew ssl
 echo -n '#!/bin/bash
@@ -68,16 +68,19 @@ echo -n '#!/bin/bash
 "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" &> /root/renew_ssl.log
 /etc/init.d/nginx start
 /etc/init.d/nginx status
-' > /usr/local/bin/ssl_renew.sh
+' >/usr/local/bin/ssl_renew.sh
 chmod +x /usr/local/bin/ssl_renew.sh
-if ! grep -q 'ssl_renew.sh' /var/spool/cron/crontabs/root;then (crontab -l;echo "15 03 */3 * * /usr/local/bin/ssl_renew.sh") | crontab;fi
+if ! grep -q 'ssl_renew.sh' /var/spool/cron/crontabs/root; then (
+  crontab -l
+  echo "15 03 */3 * * /usr/local/bin/ssl_renew.sh"
+) | crontab; fi
 
 mkdir -p /home/vps/public_html
 
 # set uuid
 uuid=$(cat /proc/sys/kernel/random/uuid)
 # xray config
-cat > /etc/xray/config.json << END
+cat >/etc/xray/config.json <<END
 {
   "log" : {
     "access": "/var/log/xray/access.log",
@@ -331,7 +334,7 @@ cat > /etc/xray/config.json << END
 }
 END
 
-cat > /etc/xray/vision.json << END
+cat >/etc/xray/vision.json <<END
 {
   "log" : {
     "access": "/var/log/xray/access.log",
@@ -457,10 +460,9 @@ cat > /etc/xray/vision.json << END
 }
 END
 
-
 rm -rf /etc/systemd/system/xray.service.d
 rm -rf /etc/systemd/system/xray@.service
-cat <<EOF> /etc/systemd/system/xray.service
+cat <<EOF >/etc/systemd/system/xray.service
 Description=Xray Service
 Documentation=https://github.com/xtls
 After=network.target nss-lookup.target
@@ -480,7 +482,7 @@ LimitNOFILE=1000000
 WantedBy=multi-user.target
 EOF
 
-cat > /etc/systemd/system/runn.service <<EOF
+cat >/etc/systemd/system/runn.service <<EOF
 [Unit]
 Description=Unknown
 After=network.target
@@ -619,41 +621,40 @@ systemctl restart runn
 
 cd /usr/bin/
 # vmess
-wget -O add-ws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/add-ws.sh" && chmod +x add-ws
-wget -O trialvmess "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/trialvmess.sh" && chmod +x trialvmess
-wget -O renew-ws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/renew-ws.sh" && chmod +x renew-ws
-wget -O del-ws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/del-ws.sh" && chmod +x del-ws
-wget -O cek-ws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/cek-ws.sh" && chmod +x cek-ws
+wget -O add-ws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/add-ws.sh" && chmod +x add-ws
+wget -O trialvmess "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/trialvmess.sh" && chmod +x trialvmess
+wget -O renew-ws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/renew-ws.sh" && chmod +x renew-ws
+wget -O del-ws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/del-ws.sh" && chmod +x del-ws
+wget -O cek-ws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/cek-ws.sh" && chmod +x cek-ws
 
 # vless
-wget -O add-vless "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/add-vless.sh" && chmod +x add-vless
-wget -O trialvless "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/trialvless.sh" && chmod +x trialvless
-wget -O renew-vless "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/renew-vless.sh" && chmod +x renew-vless
-wget -O del-vless "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/del-vless.sh" && chmod +x del-vless
-wget -O cek-vless "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/cek-vless.sh" && chmod +x cek-vless
+wget -O add-vless "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/add-vless.sh" && chmod +x add-vless
+wget -O trialvless "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/trialvless.sh" && chmod +x trialvless
+wget -O renew-vless "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/renew-vless.sh" && chmod +x renew-vless
+wget -O del-vless "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/del-vless.sh" && chmod +x del-vless
+wget -O cek-vless "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/cek-vless.sh" && chmod +x cek-vless
 
 # trojan
-wget -O add-tr "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/add-tr.sh" && chmod +x add-tr
-wget -O trialtrojan "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/trialtrojan.sh" && chmod +x trialtrojan
-wget -O del-tr "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/del-tr.sh" && chmod +x del-tr
-wget -O renew-tr "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/renew-tr.sh" && chmod +x renew-tr
-wget -O cek-tr "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/cek-tr.sh" && chmod +x cek-tr
+wget -O add-tr "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/add-tr.sh" && chmod +x add-tr
+wget -O trialtrojan "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/trialtrojan.sh" && chmod +x trialtrojan
+wget -O del-tr "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/del-tr.sh" && chmod +x del-tr
+wget -O renew-tr "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/renew-tr.sh" && chmod +x renew-tr
+wget -O cek-tr "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/cek-tr.sh" && chmod +x cek-tr
 
 # shadowsocks
-wget -O add-ssws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/add-ssws.sh" && chmod +x add-ssws
-wget -O trialssws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/trialssws.sh" && chmod +x trialssws
-wget -O del-ssws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/del-ssws.sh" && chmod +x del-ssws
-wget -O renew-ssws "https://raw.githubusercontent.com/nanotechid/supreme/aio/xray/renew-ssws.sh" && chmod +x renew-ssws
-
+wget -O add-ssws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/add-ssws.sh" && chmod +x add-ssws
+wget -O trialssws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/trialssws.sh" && chmod +x trialssws
+wget -O del-ssws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/del-ssws.sh" && chmod +x del-ssws
+wget -O renew-ssws "https://raw.githubusercontent.com/rickicode/supreme/aio/xray/renew-ssws.sh" && chmod +x renew-ssws
 
 sleep 0.5
 yellow() { echo -e "\\033[33;1m${*}\\033[0m"; }
 yellow "xray/Vmess"
 yellow "xray/Vless"
 
-mv /root/domain /etc/xray/ 
-if [ -f /root/scdomain ];then
-rm /root/scdomain > /dev/null 2>&1
+mv /root/domain /etc/xray/
+if [ -f /root/scdomain ]; then
+  rm /root/scdomain >/dev/null 2>&1
 fi
 clear
-rm -f ins-xray.sh  
+rm -f ins-xray.sh
