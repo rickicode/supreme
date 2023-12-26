@@ -83,7 +83,12 @@ fi
 ttet=$(uname -r)
 ReqPKG="linux-headers-$ttet"
 if ! dpkg -s $ReqPKG >/dev/null 2>&1; then
-  rm /root/setup.sh >/dev/null 2>&1
+  rm setup.sh >/dev/null 2>&1
+  echo -e "[ ${yell}WARNING${NC} ] Try to install...."
+  echo "No $ReqPKG. Setting up $ReqPKG."
+  apt-get --yes install $ReqPKG
+  sleep 0.5
+  echo ""
   exit
 else
   clear
