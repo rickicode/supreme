@@ -1,52 +1,13 @@
 #!/bin/bash
 dateFromServer=$(curl -v --insecure --silent https://google.com/ 2>&1 | grep Date | sed -e 's/< Date: //')
-biji=`date +"%Y-%m-%d" -d "$dateFromServer"`
+biji=$(date +"%Y-%m-%d" -d "$dateFromServer")
 #########################
 
-BURIQ () {
-    curl -sS https://raw.githubusercontent.com/rickicode/supreme/aio/permission/ip > /root/tmp
-    data=( `cat /root/tmp | grep -E "^### " | awk '{print $2}'` )
-    for user in "${data[@]}"
-    do
-    exp=( `grep -E "^### $user" "/root/tmp" | awk '{print $3}'` )
-    d1=(`date -d "$exp" +%s`)
-    d2=(`date -d "$biji" +%s`)
-    exp2=$(( (d1 - d2) / 86400 ))
-    if [[ "$exp2" -le "0" ]]; then
-    echo $user > /etc/.$user.ini
-    else
-    rm -f  /etc/.$user.ini > /dev/null 2>&1
-    fi
-    done
-    rm -f  /root/tmp
-}
-# https://raw.githubusercontent.com/rickicode/supreme/aio/permission/ip 
+# https://raw.githubusercontent.com/rickicode/supreme/aio/permission/ip
 MYIP=$(curl -sS ipv4.icanhazip.com)
 Name=$(curl -sS https://raw.githubusercontent.com/rickicode/supreme/aio/permission/ip | grep $MYIP | awk '{print $2}')
-echo $Name > /usr/local/etc/.$Name.ini
+echo $Name >/usr/local/etc/.$Name.ini
 CekOne=$(cat /usr/local/etc/.$Name.ini)
-
-Bloman () {
-if [ -f "/etc/.$Name.ini" ]; then
-CekTwo=$(cat /etc/.$Name.ini)
-    if [ "$CekOne" = "$CekTwo" ]; then
-        res="Expired"
-    fi
-else
-res="Permission Accepted..."
-fi
-}
-
-PERMISSION () {
-    MYIP=$(curl -sS ipv4.icanhazip.com)
-    IZIN=$(curl -sS https://raw.githubusercontent.com/rickicode/supreme/aio/permission/ip | awk '{print $4}' | grep $MYIP)
-    if [ "$MYIP" = "$IZIN" ]; then
-    Bloman
-    else
-    res="Permission Denied!"
-    fi
-    BURIQ
-}
 
 clear
 red='\e[1;31m'
@@ -62,19 +23,19 @@ red() { echo -e "\\033[31;1m${*}\\033[0m"; }
 cd /root
 #System version number
 if [ "${EUID}" -ne 0 ]; then
-		echo "You need to run this script as root"
-		exit 1
+  echo "You need to run this script as root"
+  exit 1
 fi
 if [ "$(systemd-detect-virt)" == "openvz" ]; then
-		echo "OpenVZ is not supported"
-		exit 1
+  echo "OpenVZ is not supported"
+  exit 1
 fi
 
 localip=$(hostname -I | cut -d\  -f1)
-hst=( `hostname` )
-dart=$(cat /etc/hosts | grep -w `hostname` | awk '{print $2}')
+hst=($(hostname))
+dart=$(cat /etc/hosts | grep -w $(hostname) | awk '{print $2}')
 if [[ "$hst" != "$dart" ]]; then
-echo "$localip $(hostname)" >> /etc/hosts
+  echo "$localip $(hostname)" >>/etc/hosts
 fi
 
 mkdir -p /etc/xray
@@ -84,16 +45,15 @@ touch /etc/v2ray/domain
 touch /etc/xray/scdomain
 touch /etc/v2ray/scdomain
 
-
 echo -e "[ ${tyblue}NOTES${NC} ] Before we go.. "
 sleep 0.5
 echo -e "[ ${tyblue}NOTES${NC} ] I need check your headers first.."
 sleep 0.5
 echo -e "[ ${green}INFO${NC} ] Checking headers"
 sleep 0.5
-totet=`uname -r`
+totet=$(uname -r)
 REQUIRED_PKG="linux-headers-$totet"
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG | grep "install ok installed")
 echo Checking for $REQUIRED_PKG: $PKG_OK
 if [ "" = "$PKG_OK" ]; then
   sleep 0.5
@@ -120,18 +80,17 @@ else
   echo -e "[ ${green}INFO${NC} ] Oke installed"
 fi
 
-ttet=`uname -r`
+ttet=$(uname -r)
 ReqPKG="linux-headers-$ttet"
-if ! dpkg -s $ReqPKG  >/dev/null 2>&1; then
-  rm /root/setup.sh >/dev/null 2>&1 
+if ! dpkg -s $ReqPKG >/dev/null 2>&1; then
+  rm /root/setup.sh >/dev/null 2>&1
   exit
 else
   clear
 fi
 
-
 secs_to_human() {
-    echo "Installation time : $(( ${1} / 3600 )) hours $(( (${1} / 60) % 60 )) minute's $(( ${1} % 60 )) seconds"
+  echo "Installation time : $((${1} / 3600)) hours $(((${1} / 60) % 60)) minute's $((${1} % 60)) seconds"
 }
 start=$(date +%s)
 ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
@@ -140,27 +99,16 @@ sysctl -w net.ipv6.conf.default.disable_ipv6=1 >/dev/null 2>&1
 
 echo -e "[ ${green}INFO${NC} ] Preparing the install file"
 apt install git curl -y >/dev/null 2>&1
+apt install python2 -y >/dev/null 2>&1
 apt install python -y >/dev/null 2>&1
 echo -e "[ ${green}INFO${NC} ] Aight good ... installation file is ready"
 sleep 0.5
 echo -ne "[ ${green}INFO${NC} ] Check permission : "
 
-PERMISSION
-if [ -f /home/needupdate ]; then
-red "Your script need to update first !"
-exit 0
-elif [ "$res" = "Permission Accepted..." ]; then
-green "Permission Accepted!"
-else
-red "Permission Denied!"
-rm setup.sh > /dev/null 2>&1
-sleep 0.5
-exit 0
-fi
 sleep 0.5
 
 mkdir -p /var/lib/ >/dev/null 2>&1
-echo "IP=" >> /var/lib/ipvps.conf
+echo "IP=" >>/var/lib/ipvps.conf
 
 echo ""
 #wget -q https://raw.githubusercontent.com/rickicode/supreme/aio/tools.sh;chmod +x tools.sh;./tools.sh
@@ -169,19 +117,19 @@ clear
 red "Tambah Domain Untuk XRAY"
 echo " "
 read -rp "Input domain kamu : " -e dns
-    if [ -z $dns ]; then
-        echo -e "
+if [ -z $dns ]; then
+  echo -e "
         Nothing input for domain!
         Then a random domain will be created"
-    else
-        echo "$dns" > /root/scdomain
-	echo "$dns" > /etc/xray/scdomain
-	echo "$dns" > /etc/xray/domain
-	echo "$dns" > /etc/v2ray/domain
-	echo $dns > /root/domain
-        echo "IP=$dns" > /var/lib/ipvps.conf
-    fi
-    
+else
+  echo "$dns" >/root/scdomain
+  echo "$dns" >/etc/xray/scdomain
+  echo "$dns" >/etc/xray/domain
+  echo "$dns" >/etc/v2ray/domain
+  echo $dns >/root/domain
+  echo "IP=$dns" >/var/lib/ipvps.conf
+fi
+
 #install ssh ovpn
 echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo -e "$green      Install SSH Websocket               $NC"
@@ -198,7 +146,7 @@ clear
 wget https://raw.githubusercontent.com/rickicode/supreme/aio/xray/ins-xray.sh && chmod +x ins-xray.sh && ./ins-xray.sh
 wget https://raw.githubusercontent.com/rickicode/supreme/aio/sshws/insshws.sh && chmod +x insshws.sh && ./insshws.sh
 clear
-cat> /root/.profile << END
+cat >/root/.profile <<END
 # ~/.profile: executed by Bourne-compatible login shells.
 
 if [ "$BASH" ]; then
@@ -214,34 +162,33 @@ END
 chmod 644 /root/.profile
 
 if [ -f "/root/log-install.txt" ]; then
-rm /root/log-install.txt > /dev/null 2>&1
+  rm /root/log-install.txt >/dev/null 2>&1
 fi
 if [ -f "/etc/afak.conf" ]; then
-rm /etc/afak.conf > /dev/null 2>&1
+  rm /etc/afak.conf >/dev/null 2>&1
 fi
 if [ ! -f "/etc/log-create-user.log" ]; then
-echo "Log All Account " > /etc/log-create-user.log
+  echo "Log All Account " >/etc/log-create-user.log
 fi
 history -c
-serverV=$( curl -sS https://raw.githubusercontent.com/rickicode/supreme/aio/permission/versi  )
-echo $serverV > /opt/.ver
+serverV=$(curl -sS https://raw.githubusercontent.com/rickicode/supreme/aio/permission/versi)
+echo $serverV >/opt/.ver
 aureb=$(cat /home/re_otm)
 b=11
-if [ $aureb -gt $b ]
-then
-gg="PM"
+if [ $aureb -gt $b ]; then
+  gg="PM"
 else
-gg="AM"
+  gg="AM"
 fi
-curl -sS ifconfig.me > /etc/myipvps
+curl -sS ifconfig.me >/etc/myipvps
 echo " "
 echo "=====================-[ SUPREME ]-===================="
 echo ""
 echo "------------------------------------------------------------"
 echo ""
 echo ""
-echo "   >>> Service & Port"  | tee -a log-install.txt
-echo "   - OpenSSH                  : 22"  | tee -a log-install.txt
+echo "   >>> Service & Port" | tee -a log-install.txt
+echo "   - OpenSSH                  : 22" | tee -a log-install.txt
 echo "   - SSH Websocket            : 80 [ON]" | tee -a log-install.txt
 echo "   - SSH SSL Websocket        : 443" | tee -a log-install.txt
 echo "   - Stunnel4                 : 222, 777" | tee -a log-install.txt
@@ -276,13 +223,8 @@ echo -e "
 "
 echo -ne "[ ${yell}WARNING${NC} ] reboot now ? (y/n)? "
 read answer
-if [ "$answer" == "${answer#[Yy]}" ] ;then
-exit 0
+if [ "$answer" == "${answer#[Yy]}" ]; then
+  exit 0
 else
-reboot
+  reboot
 fi
-
-
-
-
-
