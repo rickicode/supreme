@@ -67,15 +67,15 @@ if [ "" = "$PKG_OK" ]; then
   sleep 0.5
   echo ""
   sleep 0.5
-  echo -e "[ ${tyblue}NOTES${NC} ] apt update && upgrade"
+  echo -e "[ ${tyblue}NOTES${NC} ] apt update && apt upgrade"
   sleep 0.5
+  sudo apt upgrade -y
   echo ""
   sleep 0.5
   echo -e "[ ${tyblue}NOTES${NC} ] After this"
   sleep 0.5
   echo -e "[ ${tyblue}NOTES${NC} ] Then run this script again"
   echo -e "[ ${tyblue}NOTES${NC} ] enter now"
-  read
 else
   echo -e "[ ${green}INFO${NC} ] Oke installed"
 fi
