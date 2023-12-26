@@ -2,8 +2,6 @@
 MYIP=$(curl -sS ipv4.icanhazip.com)
 echo "Checking VPS"
 
-rm /root/expired.txt
-
 # Color Validation
 DF='\e[39m'
 Bold='\e[1m'

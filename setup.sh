@@ -74,25 +74,26 @@ if [ "" = "$PKG_OK" ]; then
   sleep 0.5
   echo -e "[ ${tyblue}NOTES${NC} ] After this"
   sleep 0.5
-  echo -e "[ ${tyblue}NOTES${NC} ] Then run this script again"
-  echo -e "[ ${tyblue}NOTES${NC} ] enter now"
+  # echo -e "[ ${tyblue}NOTES${NC} ] Then run this script again"
+  # echo -e "[ ${tyblue}NOTES${NC} ] enter now"
 else
   echo -e "[ ${green}INFO${NC} ] Oke installed"
 fi
 
-ttet=$(uname -r)
-ReqPKG="linux-headers-$ttet"
-if ! dpkg -s $ReqPKG >/dev/null 2>&1; then
-  rm setup.sh >/dev/null 2>&1
-  echo -e "[ ${yell}WARNING${NC} ] Try to install...."
-  echo "No $ReqPKG. Setting up $ReqPKG."
-  apt-get --yes install $ReqPKG
-  sleep 0.5
-  echo ""
-  exit
-else
-  clear
-fi
+# ttet=$(uname -r)
+# ReqPKG="linux-headers-$ttet"
+# if ! dpkg -s $ReqPKG >/dev/null 2>&1; then
+#   rm setup.sh >/dev/null 2>&1
+#   echo "No $ReqPKG. Setting up $ReqPKG."
+#   sleep 0.5
+#   echo -e "[ ${yell}WARNING${NC} ] Need to Reboot"
+#   read
+#   reboot -f
+#   echo ""
+#   exit
+# else
+#   clear
+# fi
 
 secs_to_human() {
   echo "Installation time : $((${1} / 3600)) hours $(((${1} / 60) % 60)) minute's $((${1} % 60)) seconds"
